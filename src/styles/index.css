@@ -1,0 +1,52 @@
+@import './landing-page.css';
+@import './fileuploader.css';
+@import './sliders.css';
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    position: relative;
+    scroll-behavior: smooth;
+    list-style: none;
+    /* outline: 1px solid gray; */
+}
+
+body {
+    width: 100vw;
+    overflow-x: hidden;
+}
+
+*::-webkit-scrollbar {
+    width: 2px;
+    height: 2px;
+    z-index: -1;
+}
+
+*::-webkit-scrollbar-track {
+    background: #f1f1f105;
+    z-index: -1;
+}
+
+*::-webkit-scrollbar-thumb {
+    background: #d2d2d2;
+    border-radius: 10px;
+    z-index: -1;
+}
+
+*::-webkit-scrollbar-thumb:hover {
+    background: gray;
+    z-index: -1;
+}
+
+@keyframes blink {
+    0% {
+        opacity: 0;
+    }
+    50% {
+        opacity: 1;
+    }
+    100% {
+        opacity: 0;
+    }
+}

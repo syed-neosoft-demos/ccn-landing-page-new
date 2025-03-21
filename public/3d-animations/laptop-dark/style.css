@@ -1,0 +1,15 @@
+html,
+body {
+    overflow: hidden;
+    padding: 0;
+    margin: 0;
+    background-color: #0B101A;
+}
+
+
+
+canvas {
+    display: block;
+    width: 100%;
+    cursor: grab;
+}

@@ -1,0 +1,48 @@
+.wrapper {
+    width: 100%;
+    max-width: 100%;
+    margin-inline: auto;
+    position: relative;
+    height: 400px;
+    /* margin-top: 5rem; */
+    overflow: hidden;
+    mask-image: linear-gradient(to right, rgba(0, 0, 0, 0), rgba(0, 0, 0, 1) 10%, rgba(0, 0, 0, 1) 90%, rgba(0, 0, 0, 0));
+}
+
+@keyframes scrollLeft {
+    to {
+        left: -300px;
+    }
+}
+
+.wrapper .item {
+    width: 300px;
+    height: 300px;
+    border-radius: 6px;
+    position: absolute;
+    animation-name: scrollLeft;
+    animation-duration: 30s;
+    animation-timing-function: linear;
+    animation-iteration-count: infinite;
+}
+
+.wrapper:hover .item {
+    animation-play-state: paused !important;
+}
+
+
+
+.wrapper .reverse-item {
+    width: 150px;
+    height: 100px;
+    border-radius: 6px;
+    position: absolute;
+    animation-name: scrollLeft;
+    animation-duration: 30s;
+    animation-timing-function: linear;
+    animation-iteration-count: infinite;
+}
+
+.wrapper:hover .reverse-item {
+    animation-play-state: paused !important;
+}
