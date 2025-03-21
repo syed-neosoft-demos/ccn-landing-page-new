@@ -1,7 +1,9 @@
 import type { NextConfig } from 'next'
 const isDevelopment = process.env.NODE_ENV === 'development'
 export const siteConfigs = {
-    self: isDevelopment ? 'http://localhost:7000' : 'https://cybersecurity.connectingcybernetworks.co.in',
+    self: isDevelopment
+        ? 'http://localhost:3000'
+        : 'https://cybersecurity.connectingcybernetworks.co.in',
     paths: {
         getCourseData: (slug: string) => '/api/get-course-data/' + slug,
         getCourses: () => `/api/get-courses`,
@@ -19,14 +21,36 @@ export const siteConfigs = {
         ROOT: () => '/',
         COURSE_DEMO_REGISTRATION: {
             ROOT: (slug: string) => '/course-demo-registration/' + slug,
-            AADHAR_VERIFICATION: (slug: string) => '/course-demo-registration/aadhar-verification/' + slug,
-            CREATE_PROFILE: (slug: string) => '/course-demo-registration/create-profile/' + slug,
-            PAYMENT: (slug: string, user_id: string) => '/course-demo-registration/' + slug + '/payment/' + user_id,
-            PAYMENT_SUCCESS: (slug: string, user_id: string) => '/course-demo-registration/' + slug + '/payment-success/' + user_id,
-            PAYMENT_FAILED: (slug: string, user_id: string) => '/course-demo-registration/' + slug + '/payment-failed/' + user_id,
-            REGISTRATION: (slug: string, user_id: string) => '/course-demo-registration/' + slug + '/registration/' + user_id,
-            ALREADY_STARTED: (slug: string) => '/course-demo-registration/' + slug + '/already-started-verification',
-            REGISTRATION_SUCCESS: (slug: string, user_id: string) => '/course-demo-registration/' + slug + '/registration-success/' + user_id,
+            AADHAR_VERIFICATION: (slug: string) =>
+                '/course-demo-registration/aadhar-verification/' + slug,
+            CREATE_PROFILE: (slug: string) =>
+                '/course-demo-registration/create-profile/' + slug,
+            PAYMENT: (slug: string, user_id: string) =>
+                '/course-demo-registration/' + slug + '/payment/' + user_id,
+            PAYMENT_SUCCESS: (slug: string, user_id: string) =>
+                '/course-demo-registration/' +
+                slug +
+                '/payment-success/' +
+                user_id,
+            PAYMENT_FAILED: (slug: string, user_id: string) =>
+                '/course-demo-registration/' +
+                slug +
+                '/payment-failed/' +
+                user_id,
+            REGISTRATION: (slug: string, user_id: string) =>
+                '/course-demo-registration/' +
+                slug +
+                '/registration/' +
+                user_id,
+            ALREADY_STARTED: (slug: string) =>
+                '/course-demo-registration/' +
+                slug +
+                '/already-started-verification',
+            REGISTRATION_SUCCESS: (slug: string, user_id: string) =>
+                '/course-demo-registration/' +
+                slug +
+                '/registration-success/' +
+                user_id,
         },
     },
 
@@ -65,28 +89,29 @@ export const siteConfigs = {
         phonePE_REDIRECT_URL: process.env.PHONEPE_REDIRECT_URL as string,
         phonePE_BASE_URL: process.env.PHONEPE_BASE_URL as string,
         phonePE_STATUS_URL: process.env.PHONEPE_STATUS_URL as string,
-    }
+    },
 }
 // console.log(siteConfigs);
-
 
 const nextConfig: NextConfig = {
     eslint: {
         ignoreDuringBuilds: true,
     },
     images: {
-        remotePatterns: [{
-            protocol: 'https',
-            hostname: '**',
-        }]
+        remotePatterns: [
+            {
+                protocol: 'https',
+                hostname: '**',
+            },
+        ],
     },
-    env:{
+    env: {
         bucketName: process.env.AWS_BUCKET_NAME as string,
         region: process.env.AWS_REGION as string,
         accessKeyId: process.env.AWS_ACCESS_KEY_ID as string,
         secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY as string,
         dirName: process.env.AWS_DIR_NAME as string,
-    }
+    },
 }
 
 export default nextConfig

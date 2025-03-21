@@ -4,10 +4,10 @@
     "private": true,
     "type": "commonjs",
     "scripts": {
-        "local": "next dev -p 7000",
+        "local": "next dev -p 3000",
         "build": "SET NODE_ENV=production||next build",
         "vercel-build": "next build",
-        "start": "next start -p 7000",
+        "start": "next start -p 3000",
         "lint": "next lint",
         "format-code": "npx prettier --write .",
         "git-pre-commit": "npm run lint && npm run build  && npx prettier --write . && git add .",
