@@ -1,8 +1,9 @@
 import type { Metadata } from 'next'
 import './globals.css'
 import ContextProviders from './providers'
-import Head from 'next/head'
 import { GoogleAnalytics, GoogleTagManager } from '@next/third-parties/google'
+import { Suspense } from 'react'
+import GCLIDHandler from '@/components/ui/GCLIDHandler'
 
 export const metadata: Metadata = {
     icons: [
@@ -51,20 +52,35 @@ export default function RootLayout({
     return (
         <html lang="en" data-lt-installed="true" cz-shortcut-listen="true">
             <head>
-                <link rel="icon" href="https://www.connectingcybernetworks.com/images/CCN%20Fevicon.ico" />
-                <link rel="shortcut icon" href="favicon.ico" type="image/x-icon" />
+                <link
+                    rel="icon"
+                    href="https://www.connectingcybernetworks.com/images/CCN%20Fevicon.ico"
+                />
+                <link
+                    rel="shortcut icon"
+                    href="favicon.ico"
+                    type="image/x-icon"
+                />
                 <GoogleAnalytics gaId="AW-472706553" />
                 <GoogleTagManager gtmId="GTM-T6HDX25" />
             </head>
             <body>
-                <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-T6HDX25"
-                    height="0" width="0" style={{ display: "none", visibility: "hidden" }}></iframe></noscript>
+                <Suspense fallback={null}>
+                    <GCLIDHandler />
+                </Suspense>
+                <noscript>
+                    <iframe
+                        src="https://www.googletagmanager.com/ns.html?id=GTM-T6HDX25"
+                        height="0"
+                        width="0"
+                        style={{ display: 'none', visibility: 'hidden' }}
+                    ></iframe>
+                </noscript>
                 <ContextProviders>{children}</ContextProviders>
-            </body >
-        </html >
+            </body>
+        </html>
     )
 }
-
 
 /*
 

@@ -147,6 +147,7 @@ function CreateProfile({ courseData }: Props) {
                             ...formData,
                             profile_photo: image,
                             recaptcha_token: recaptchaToken,
+                            sourceUser: localStorage.getItem('source_user'),
                         }),
                     }
                 )
