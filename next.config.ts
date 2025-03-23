@@ -2,7 +2,7 @@ import type { NextConfig } from 'next'
 const isDevelopment = process.env.NODE_ENV === 'development'
 export const siteConfigs = {
     self: isDevelopment
-        ? 'http://localhost:7000'
+        ? 'http://localhost:3000'
         : 'https://cybersecurity.connectingcybernetworks.co.in',
     paths: {
         getCourseData: (slug: string) => '/api/get-course-data/' + slug,

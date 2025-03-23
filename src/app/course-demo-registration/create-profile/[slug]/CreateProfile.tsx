@@ -1,43 +1,47 @@
-"use client";
-import CoursePreviewPayment from '@/components/courses/CoursePreviewPayment';
-import CourseProgressTopBarComponent from '@/components/courses/CourseProgress';
-import ContentDialogBox from '@/components/mui/ContentDialogBox';
+'use client'
+import CoursePreviewPayment from '@/components/courses/CoursePreviewPayment'
+import CourseProgressTopBarComponent from '@/components/courses/CourseProgress'
+import ContentDialogBox from '@/components/mui/ContentDialogBox'
 import { SettingContext } from '@/contexts/SettingContext'
-import { uploadFileOnS3 } from '@/services/S3Storage/Upload';
+import { uploadFileOnS3 } from '@/services/S3Storage/Upload'
 import { CourseDataType } from '@/types/data-responses'
-import { Button, Card, Container, Grid, TextField, Typography } from '@mui/material'
+import {
+    Button,
+    Card,
+    Container,
+    Grid,
+    TextField,
+    Typography,
+} from '@mui/material'
 import React, { useContext, useEffect, useState } from 'react'
 import { FileUploader } from 'react-drag-drop-files'
-import { toast } from 'react-toastify';
-import OtpInput from 'react-otp-input';
-import { siteConfigs } from 'next.config';
-import { APIResponse, CreateUserData } from '@/types/responses';
-import { DotLottieReact } from '@lottiefiles/dotlottie-react';
-import { useRouter } from 'next/navigation';
+import { toast } from 'react-toastify'
+import OtpInput from 'react-otp-input'
+import { siteConfigs } from 'next.config'
+import { APIResponse, CreateUserData } from '@/types/responses'
+import { DotLottieReact } from '@lottiefiles/dotlottie-react'
+import { useRouter } from 'next/navigation'
+import ReCAPTCHA from 'react-google-recaptcha'
 
-
-
-const fileTypes = ["JPG", "PNG", "GIF", "JPEG", "SVG", "HEIC"];
+const fileTypes = ['JPG', 'PNG', 'GIF', 'JPEG', 'SVG', 'HEIC']
 
 type Props = {
     courseData: CourseDataType
 }
 
-function CreateProfile({
-    courseData
-}: Props) {
+function CreateProfile({ courseData }: Props) {
     const { settings, toggleLoading } = useContext(SettingContext)
     const [image, setImage] = React.useState<string | null>(null)
     const [isImageWindowOpen, setIsImageWindowOpen] = React.useState(true)
     const [formData, setFormData] = useState<{
-        name: string;
-        email: string;
-        phone: string;
-        address_line: string;
-        country: string;
-        state: string;
-        city: string;
-        pin_code: string;
+        name: string
+        email: string
+        phone: string
+        address_line: string
+        country: string
+        state: string
+        city: string
+        pin_code: string
     }>({
         name: '',
         email: 'not-taken',
@@ -46,138 +50,159 @@ function CreateProfile({
         country: 'not-taken',
         state: 'not-taken',
         city: '',
-        pin_code: 'not-taken'
-    });
+        pin_code: 'not-taken',
+    })
     const [formErrors, setFormErrors] = useState({
         name: false,
         phone: false,
         city: false,
     })
-    const [isDetailsSubmitted, setIsDetailsSubmitted] = useState(false);
+    const [isDetailsSubmitted, setIsDetailsSubmitted] = useState(false)
+    const [recaptchaToken, setRecaptchaToken] = useState<string | null>(null)
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const { name, value } = e.target;
+        const { name, value } = e.target
         setFormData({
             ...formData,
-            [name]: value
-        });
-    };
-    const router = useRouter();
+            [name]: value,
+        })
+    }
+    const router = useRouter()
 
     const handleFileChange = async (file: File) => {
         toggleLoading(true)
-        const extension = file.name.split(".").pop();
-        const newName = `${Date.now()}`;
+        const extension = file.name.split('.').pop()
+        const newName = `${Date.now()}`
         // console.log(file, extension, newName);
         if (!!file) {
             // console.log(file);
             try {
-
-                const response = await uploadFileOnS3(file, newName) as {
-                    location: string,
-                    bucket: string,
+                const response = (await uploadFileOnS3(file, newName)) as {
+                    location: string
+                    bucket: string
                     key: string
-                };
+                }
                 // console.log(response);
                 if (!!response.location) {
                     setImage(response.location)
                     setIsImageWindowOpen(false)
-                    toast.info("Image uploaded successfully")
+                    toast.info('Image uploaded successfully')
                 }
             } catch (error) {
-                console.log(error);
+                console.log(error)
             }
         }
         toggleLoading(false)
-    };
+    }
     function isInvalidValidForm() {
-        let isInvalid = false;
+        let isInvalid = false
         for (const key in formData) {
             if (formData[key as keyof typeof formData] === '') {
                 setFormErrors((preValue) => {
                     return {
                         ...preValue,
-                        [key]: true
+                        [key]: true,
                     }
                 })
-                isInvalid = true;
+                isInvalid = true
             } else {
                 setFormErrors((preValue) => {
                     return {
                         ...preValue,
-                        [key]: false
+                        [key]: false,
                     }
                 })
             }
         }
 
         if (formData.phone.length !== 10) {
-            toast.error("Invalid Phone Number")
+            toast.error('Invalid Phone Number')
             setFormErrors((preValue) => {
                 return {
                     ...preValue,
-                    phone: true
+                    phone: true,
                 }
             })
-            isInvalid = true;
+            isInvalid = true
         }
-        return isInvalid;
+        return isInvalid
     }
     async function handleSubmit() {
         toggleLoading(true)
         if (!isInvalidValidForm()) {
+            if (!recaptchaToken) {
+                toast.error('Please complete the reCAPTCHA verification')
+                toggleLoading(false)
+                return
+            }
+
             try {
-                const response = await fetch(`${siteConfigs.paths.createUser()}`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        ...formData,
-                        profile_photo: image
-                    })
-                })
-                const data = await response.json() as APIResponse
+                const response = await fetch(
+                    `${siteConfigs.paths.createUser()}`,
+                    {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            ...formData,
+                            profile_photo: image,
+                            recaptcha_token: recaptchaToken,
+                        }),
+                    }
+                )
+                const data = (await response.json()) as APIResponse
                 // console.log(data);
                 if (data.success) {
                     setIsDetailsSubmitted(true)
                     const response_user = data.data as CreateUserData
                     localStorage.setItem('userId', response_user.user_id)
-                    localStorage.setItem('user-data', JSON.stringify(response_user))
-                    router.push(siteConfigs.frontendPaths.COURSE_DEMO_REGISTRATION.REGISTRATION_SUCCESS(courseData.course_id, response_user.user_id))
+                    localStorage.setItem(
+                        'user-data',
+                        JSON.stringify(response_user)
+                    )
+                    router.push(
+                        siteConfigs.frontendPaths.COURSE_DEMO_REGISTRATION.REGISTRATION_SUCCESS(
+                            courseData.course_id,
+                            response_user.user_id
+                        )
+                    )
                 } else {
                     toast.error(data.message)
                 }
             } catch (error) {
-                console.log(error);
+                console.log(error)
             }
         }
         toggleLoading(false)
     }
 
     return (
-        <div style={{
-            display: 'flex',
-            justifyContent: 'center',
-            alignItems: 'center',
-            minHeight: '70vh',
-            marginTop: "90px",
-            flexDirection: 'column',
-        }}>
-            {
-                settings.screen !== "mobile" &&
+        <div
+            style={{
+                display: 'flex',
+                justifyContent: 'center',
+                alignItems: 'center',
+                minHeight: '70vh',
+                marginTop: '90px',
+                flexDirection: 'column',
+            }}
+        >
+            {settings.screen !== 'mobile' && (
                 <CoursePreviewPayment courseData={courseData} />
-            }
+            )}
             <CourseProgressTopBarComponent courseSlug={courseData.course_id} />
             <Container>
                 <br />
-                <Card style={{
-                    padding: '20px',
-                    borderRadius: '20px',
-                    boxShadow: '0 0 10px 0 rgba(0,0,0,0.2)',
-                    display: "grid",
-                    gridTemplateColumns: "1fr",
-                    gap: "20px",
-                }}>
+                <Card
+                    style={{
+                        padding: '20px',
+                        borderRadius: '20px',
+                        boxShadow: '0 0 10px 0 rgba(0,0,0,0.2)',
+                        display: 'grid',
+                        gridTemplateColumns: '1fr',
+                        gap: '20px',
+                    }}
+                >
                     {/* <div style={{
                         margin: "10px 0",
                         width: "100%",
@@ -223,14 +248,16 @@ function CreateProfile({
                                 error={formErrors.email}
                             />
                         </Grid> */}
-                        <div style={{
-                            display: 'grid',
-                            gridTemplateColumns: '1fr',
-                            paddingLeft: '16px',
-                            gap: '10px',
-                            width: '100%',
-                            margin: '10px 0'
-                        }}>
+                        <div
+                            style={{
+                                display: 'grid',
+                                gridTemplateColumns: '1fr',
+                                paddingLeft: '16px',
+                                gap: '10px',
+                                width: '100%',
+                                margin: '10px 0',
+                            }}
+                        >
                             <Grid item xs={12}>
                                 <TextField
                                     label="Phone"
@@ -286,14 +313,15 @@ function CreateProfile({
                                 />
                             </Grid>
                         </div> */}
-                        <div style={{
-                            display: 'grid',
-                            gridTemplateColumns: '1fr',
-                            paddingLeft: '16px',
-                            gap: '10px',
-                            width: '100%'
-                        }}>
-
+                        <div
+                            style={{
+                                display: 'grid',
+                                gridTemplateColumns: '1fr',
+                                paddingLeft: '16px',
+                                gap: '10px',
+                                width: '100%',
+                            }}
+                        >
                             <Grid item xs={12}>
                                 <TextField
                                     label="City"
@@ -317,16 +345,30 @@ function CreateProfile({
                                 />
                             </Grid> */}
                         </div>
+                        {/* Add reCAPTCHA component */}
                         <Grid item xs={12}>
-                            <Button type="submit" variant="contained" color="primary" fullWidth onClick={() => {
-                                handleSubmit()
-                            }}>
+                            <ReCAPTCHA
+                                sitekey={
+                                    process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY!
+                                }
+                                onChange={(token) => setRecaptchaToken(token)}
+                            />
+                        </Grid>
+                        <Grid item xs={12}>
+                            <Button
+                                type="submit"
+                                variant="contained"
+                                color="primary"
+                                fullWidth
+                                onClick={() => {
+                                    handleSubmit()
+                                }}
+                            >
                                 Register for Demo
                             </Button>
                         </Grid>
                     </Grid>
                 </Card>
-
 
                 {/* <ContentDialogBox
                     isOpen={isDetailsSubmitted}
@@ -345,48 +387,47 @@ function CreateProfile({
 
                     }}
                 /> */}
-
             </Container>
-
         </div>
     )
 }
 
-
-
 function OTPVerificationComponent({
     email,
     phone,
-    courseSlug
+    courseSlug,
 }: {
-    email: string,
-    phone: string,
+    email: string
+    phone: string
     courseSlug: string
 }) {
-    const [emailOTP, setEmailOTP] = React.useState('');
-    const [phoneOTP, setPhoneOTP] = React.useState('');
-    const [isEmailVerified, setIsEmailVerified] = React.useState(false);
-    const [isPhoneVerified, setIsPhoneVerified] = React.useState(false);
+    const [emailOTP, setEmailOTP] = React.useState('')
+    const [phoneOTP, setPhoneOTP] = React.useState('')
+    const [isEmailVerified, setIsEmailVerified] = React.useState(false)
+    const [isPhoneVerified, setIsPhoneVerified] = React.useState(false)
     const { settings, toggleLoading } = useContext(SettingContext)
-    const router = useRouter();
+    const router = useRouter()
     async function verifyEmailOTP() {
         if (emailOTP.length !== 6) {
-            toast.error("Invalid Email OTP")
-            return;
+            toast.error('Invalid Email OTP')
+            return
         }
         toggleLoading(true)
         try {
-            const response = await fetch(`${siteConfigs.paths.verifyEmailOTP()}`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    email,
-                    otp: emailOTP
-                })
-            })
-            const data = await response.json() as APIResponse
+            const response = await fetch(
+                `${siteConfigs.paths.verifyEmailOTP()}`,
+                {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        email,
+                        otp: emailOTP,
+                    }),
+                }
+            )
+            const data = (await response.json()) as APIResponse
             // console.log(data);
             if (data.success) {
                 setIsEmailVerified(true)
@@ -394,28 +435,31 @@ function OTPVerificationComponent({
                 toast.error(data.message)
             }
         } catch (error) {
-            console.log(error);
+            console.log(error)
         }
         toggleLoading(false)
     }
     async function verifyPhoneOTP() {
         if (phoneOTP.length !== 6) {
-            toast.error("Invalid Phone OTP")
-            return;
+            toast.error('Invalid Phone OTP')
+            return
         }
         toggleLoading(true)
         try {
-            const response = await fetch(`${siteConfigs.paths.verifyPhoneOTP()}`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    phone,
-                    otp: phoneOTP
-                })
-            })
-            const data = await response.json() as APIResponse
+            const response = await fetch(
+                `${siteConfigs.paths.verifyPhoneOTP()}`,
+                {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        phone,
+                        otp: phoneOTP,
+                    }),
+                }
+            )
+            const data = (await response.json()) as APIResponse
             // console.log(data);
             if (data.success) {
                 setIsPhoneVerified(true)
@@ -423,27 +467,30 @@ function OTPVerificationComponent({
                 toast.error(data.message)
             }
         } catch (error) {
-            console.log(error);
+            console.log(error)
         }
         toggleLoading(false)
     }
     useEffect(() => {
         if (isEmailVerified && isPhoneVerified) {
-            toast.success("Email and Phone Verified Successfully")
-            router.push(`${siteConfigs.frontendPaths.COURSE_DEMO_REGISTRATION.AADHAR_VERIFICATION(courseSlug)}`)
+            toast.success('Email and Phone Verified Successfully')
+            router.push(
+                `${siteConfigs.frontendPaths.COURSE_DEMO_REGISTRATION.AADHAR_VERIFICATION(courseSlug)}`
+            )
         }
-
     }, [isEmailVerified, isPhoneVerified])
     return (
-        <div style={{
-            display: 'flex',
-            justifyContent: 'center',
-            alignItems: 'center',
-            flexDirection: 'column',
-            gap: '10px',
-        }}>
-            {
-                isEmailVerified ? <>
+        <div
+            style={{
+                display: 'flex',
+                justifyContent: 'center',
+                alignItems: 'center',
+                flexDirection: 'column',
+                gap: '10px',
+            }}
+        >
+            {isEmailVerified ? (
+                <>
                     <div
                         style={{
                             maxWidth: 'min(70%,200px)',
@@ -454,13 +501,15 @@ function OTPVerificationComponent({
                             autoplay
                         />
                     </div>
-                    <h4>
-                        Email Verified Successfully
-                    </h4>
-                </> : <>
-                    <Typography style={{
-                        marginTop: '50px',
-                    }}>
+                    <h4>Email Verified Successfully</h4>
+                </>
+            ) : (
+                <>
+                    <Typography
+                        style={{
+                            marginTop: '50px',
+                        }}
+                    >
                         Enter the OTP sent to your {email}
                     </Typography>
                     <OtpInput
@@ -476,17 +525,19 @@ function OTPVerificationComponent({
                             borderRadius: '5px',
                         }}
                     />
-                    <Button variant="contained" color="primary" onClick={() => {
-                        verifyEmailOTP()
-                    }
-                    }>
+                    <Button
+                        variant="contained"
+                        color="primary"
+                        onClick={() => {
+                            verifyEmailOTP()
+                        }}
+                    >
                         Verify Email
                     </Button>
                 </>
-            }
-            {
-
-                isPhoneVerified ? <>
+            )}
+            {isPhoneVerified ? (
+                <>
                     <div
                         style={{
                             maxWidth: 'min(70%,200px)',
@@ -497,14 +548,15 @@ function OTPVerificationComponent({
                             autoplay
                         />
                     </div>
-                    <h4>
-                        Phone Verified Successfully
-                    </h4>
-                </> : <>
-
-                    <Typography style={{
-                        marginTop: '50px',
-                    }}>
+                    <h4>Phone Verified Successfully</h4>
+                </>
+            ) : (
+                <>
+                    <Typography
+                        style={{
+                            marginTop: '50px',
+                        }}
+                    >
                         Enter the OTP sent to your {phone}
                     </Typography>
                     <OtpInput
@@ -518,32 +570,24 @@ function OTPVerificationComponent({
                             margin: '0 2px',
                             width: '40px',
                             borderRadius: '5px',
-
                         }}
                     />
-                    <Button variant="contained" color="primary" onClick={() => {
-                        verifyPhoneOTP()
-                    }
-                    }>
+                    <Button
+                        variant="contained"
+                        color="primary"
+                        onClick={() => {
+                            verifyPhoneOTP()
+                        }}
+                    >
                         Verify Phone
                     </Button>
                 </>
-            }
-            {
-                isEmailVerified && isPhoneVerified && <Button color="primary" >
-                    Going to Next Section.....
-                </Button>
-            }
+            )}
+            {isEmailVerified && isPhoneVerified && (
+                <Button color="primary">Going to Next Section.....</Button>
+            )}
         </div>
     )
 }
-
-
-
-
-
-
-
-
 
 export default CreateProfile

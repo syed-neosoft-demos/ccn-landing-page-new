@@ -1,58 +1,85 @@
-"use client";
-import { Button, Container, Typography } from '@mui/material';
-import Link from 'next/link';
+'use client'
+import { Button, Container, Typography, useMediaQuery } from '@mui/material'
+import Link from 'next/link'
 import React from 'react'
+import { useTheme } from '@mui/material/styles'
 
-type Props = {}
-
-function BottomBranding({ }: Props) {
+function BottomBranding() {
+    const theme = useTheme()
+    const isMobile = useMediaQuery(theme.breakpoints.down('md'))
     return (
-        <div style={{
-            width: '100%',
-            position: 'fixed',
-            bottom: 0,
-            left: 0,
-            zIndex: 99999999,
-            backgroundColor: '#2962FF',
-        }}>
-            <Container style={{
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-                position: 'relative',
-                color: 'white',
-                borderRadius: '5px',
-            }}>
-
-                <Typography variant="h6" style={{
-                    padding: '0.5rem',
-                    textAlign: 'center',
+        <div
+            style={{
+                width: '100%',
+                position: 'fixed',
+                bottom: 0,
+                left: 0,
+                zIndex: 99999999,
+                backgroundColor: '#2962FF',
+            }}
+        >
+            <Container
+                style={{
                     display: 'flex',
-                    gap: '0.5rem',
+                    justifyContent: 'space-between',
                     alignItems: 'center',
-                    flexWrap: 'wrap',
-                }}>
-                    <span style={{
-                        fontSize: '0.8rem',
-                    }}>
+                    position: 'relative',
+                    color: 'white',
+                    borderRadius: '5px',
+                    flexDirection: isMobile ? 'column' : 'row',
+                }}
+            >
+                <Typography
+                    variant="h6"
+                    style={{
+                        padding: '0.5rem',
+                        textAlign: 'center',
+                        display: 'flex',
+                        gap: '0.5rem',
+                        alignItems: 'center',
+                        flexWrap: 'wrap',
+                    }}
+                >
+                    <span
+                        style={{
+                            fontSize: '0.8rem',
+                        }}
+                    >
                         Only Limited Seats Available
                     </span>
-                    <Typography style={{
-                        color: 'red',
-                        fontWeight: 'bold',
-                        animation: 'blink 1s infinite',
-                    }}>
-
+                    <Typography
+                        style={{
+                            color: 'red',
+                            fontWeight: 'bold',
+                            animation: 'blink 1s infinite',
+                        }}
+                    >
                         High Demand
                     </Typography>
                 </Typography>
-                <Button size='small' color='warning' variant='contained' style={{
-                    width: '150px',
-                    margin: '0.5rem 0',
-                    padding: '0.5rem 0rem',
-                    fontWeight: 'bolder',
-                }}><Link href="/course-demo-registration/create-profile/cyber-security-associate">
 
+                {/* Added mobile number here */}
+                <Typography
+                    style={{
+                        fontWeight: 'bold',
+                        margin: '0 1rem',
+                    }}
+                >
+                    Call: +91 77380 57188
+                </Typography>
+
+                <Button
+                    size="small"
+                    color="warning"
+                    variant="contained"
+                    style={{
+                        width: '150px',
+                        margin: '0.5rem 0',
+                        padding: '0.5rem 0rem',
+                        fontWeight: 'bolder',
+                    }}
+                >
+                    <Link href="/course-demo-registration/create-profile/cyber-security-associate">
                         Register Now
                     </Link>
                 </Button>
