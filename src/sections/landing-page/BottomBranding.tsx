@@ -60,12 +60,17 @@ function BottomBranding() {
 
                 {/* Added mobile number here */}
                 <Typography
+                    component="a" // Render as anchor tag
+                    href="tel:+917738057188" // tel: URI with continuous number
                     style={{
                         fontWeight: 'bold',
                         margin: '0 1rem',
+                        textDecoration: 'none', // Remove underline
+                        color: 'inherit', // Inherit text color
+                        cursor: 'pointer', // Show click cursor
                     }}
                 >
-                    Call: +91 77380 57188
+                    Call: +91 77380 57188 {/* Display formatted number */}
                 </Typography>
 
                 <Button
