@@ -55,21 +55,20 @@ export async function POST(req: Request) {
             profile_photo,
             sourceUser,
         } = await req.json()
-        // console.log(name, email, phone, address_line, country, state, city, pin_code, profile_photo);
         const isUserExists = await verifyPreviousData(email, phone)
         if (isUserExists) {
             return isUserExists
         }
         AddDataToSheet('Users-sheet', {
-            Name: name,
-            Email: email.toLowerCase(),
-            'Phone Number': phone.toString(),
-            UserId: user_id,
-            'Address Line': address_line,
-            City: city,
-            State: state,
-            Pincode: pin_code,
-            sourceUser: sourceUser,
+            Name: name ?? 'not taken',
+            Email: email.toLowerCase() ?? 'not taken',
+            'Phone Number': phone.toString() ?? 'not taken',
+            UserId: user_id ?? 'not taken',
+            'Address Line': address_line ?? 'not taken',
+            City: city ?? 'not taken',
+            State: state ?? 'not taken',
+            Pincode: pin_code ?? 'not taken',
+            sourceUser: sourceUser ?? 'not taken',
         })
         const db = await database.getConnection()
         const query =
@@ -119,7 +118,9 @@ export async function POST(req: Request) {
                 user[0].full_name,
                 registration_id
             )
-        } catch (error) {}
+        } catch (error) {
+            console.log('error :>> ', error)
+        }
         db.release()
         return NextResponse.json(
             {

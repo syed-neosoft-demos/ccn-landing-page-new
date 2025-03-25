@@ -2,7 +2,7 @@
 import { useEffect } from 'react'
 import { useSearchParams } from 'next/navigation'
 
-const GCLIDHandler = () => {
+const UserSource = () => {
     const searchParams = useSearchParams()
     useEffect(() => {
         // Extract GCLID from URL
@@ -14,4 +14,4 @@ const GCLIDHandler = () => {
     }, [searchParams]) // Re-run if URL params change
     return null // This component doesn't render UI
 }
-export default GCLIDHandler
+export default UserSource

@@ -3,7 +3,7 @@ import './globals.css'
 import ContextProviders from './providers'
 import { GoogleAnalytics, GoogleTagManager } from '@next/third-parties/google'
 import { Suspense } from 'react'
-import GCLIDHandler from '@/components/ui/GCLIDHandler'
+import UserSource from '@/components/ui/UserSource'
 
 export const metadata: Metadata = {
     icons: [
@@ -66,7 +66,7 @@ export default function RootLayout({
             </head>
             <body>
                 <Suspense fallback={null}>
-                    <GCLIDHandler />
+                    <UserSource />
                 </Suspense>
                 <noscript>
                     <iframe
